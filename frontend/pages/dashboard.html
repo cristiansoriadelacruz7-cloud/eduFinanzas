@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi panel - EduFinanzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=7">
+    <link rel="stylesheet" href="../css/reset.css?v=7">
+    <link rel="stylesheet" href="../css/global.css?v=7">
+    <link rel="stylesheet" href="../css/dashboard.css?v=7">
+    <link rel="stylesheet" href="../css/responsive.css?v=7">
+</head>
+<body>
+    <a href="#contenido" class="saltar-contenido">Saltar al contenido</a>
+
+    <!-- Flechas laterales: navegan páginas de movimientos -->
+    <button id="flechaIzq" class="nav-flecha nav-flecha--izq" type="button" aria-label="Movimientos anteriores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button id="flechaDer" class="nav-flecha nav-flecha--der" type="button" aria-label="Más movimientos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+
+    <main class="dashboard" id="contenido">
+        <!-- Barra superior: saludo + navegación -->
+        <header class="topbar" aria-label="Panel principal">
+            <div class="topbar__saludo">
+                <h1 id="saludo">Buenos días 👋</h1>
+                <p class="subtitulo">Aquí tienes un resumen de tus finanzas</p>
+            </div>
+            <nav class="topbar__acciones" aria-label="Acciones principales">
+                <a href="reportes.html" class="btn btn--contorno">Reportes</a>
+                <a href="movimiento.html" class="btn btn--acento">＋ Registrar movimiento</a>
+                <button id="btnLogout" class="btn btn--contorno" title="Cerrar sesión">Salir</button>
+            </nav>
+        </header>
+
+        <!-- Resumen: Balance · Ingresos · Gastos -->
+        <section class="resumen-grid" aria-label="Resumen financiero">
+            <article class="stat-card stat-card--balance">
+                <p class="stat-card__etiqueta">Dinero disponible</p>
+                <p class="stat-card__monto stat-card__monto--xl" id="montoDisponible">S/ 0.00</p>
+                <div class="spark"><canvas id="sparkBalance" height="48"></canvas></div>
+                <p class="stat-card__pie">
+                    <span class="chip chip--neutro">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                        ≈ <b id="diasRestantesHero">–</b> días
+                    </span>
+                </p>
+            </article>
+
+            <article class="stat-card">
+                <p class="stat-card__etiqueta">Ingresos del mes</p>
+                <div class="stat-card__fila">
+                    <span class="icono-chip icono-chip--exito" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+                    </span>
+                    <p class="stat-card__monto" id="miniIngresos">S/ 0.00</p>
+                </div>
+                <div class="spark"><canvas id="sparkIngresos" height="48"></canvas></div>
+            </article>
+
+            <article class="stat-card">
+                <p class="stat-card__etiqueta">Gastos del mes</p>
+                <div class="stat-card__fila">
+                    <span class="icono-chip icono-chip--error" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+                    </span>
+                    <p class="stat-card__monto" id="miniGastos">S/ 0.00</p>
+                </div>
+                <div class="spark"><canvas id="sparkGastos" height="48"></canvas></div>
+            </article>
+        </section>
+
+        <!-- Paneles: Gastos del mes + Mis metas -->
+        <section class="panel-grid">
+            <article class="tarjeta panel" aria-label="Gastos del mes">
+                <h2 class="panel__titulo">Gastos del mes</h2>
+                <div class="grafico-contenedor grafico-contenedor--donut">
+                    <canvas id="graficoGastos" height="220"></canvas>
+                </div>
+                <ul id="leyendaGastos" class="leyenda" role="list"></ul>
+            </article>
+
+            <article class="tarjeta panel panel-metas" aria-label="Mis metas de ahorro">
+                <h2 class="panel__titulo">Mis metas</h2>
+                <ul id="listaMetas" role="list"></ul>
+                <button id="btnNuevaMeta" class="btn btn--contorno btn--ancho">＋ Nueva meta</button>
+            </article>
+        </section>
+
+        <!-- Paneles inferiores: Movimientos + Presupuesto -->
+        <section class="panel-grid">
+            <article class="tarjeta panel" aria-label="Últimos movimientos">
+                <h2 class="panel__titulo">Últimos movimientos</h2>
+                <ol id="listaMovimientos" class="lista-movs" role="list"></ol>
+            </article>
+
+            <article class="tarjeta panel panel-presupuesto" aria-label="Presupuesto diario">
+                <h2 class="panel__titulo">Presupuesto diario</h2>
+                <p class="stat-card__etiqueta">Límite por día</p>
+                <p class="presup-limite">
+                    <span class="stat-card__monto stat-card__monto--lg" id="cardPresupuesto">S/ 0.00</span>
+                    <span id="fuenteLimite" class="chip chip--neutro"></span>
+                </p>
+
+                <div class="presup-mes">
+                    <div class="presup-mes__cab">
+                        <span>Avance del mes</span>
+                        <span><b id="diasRestantes">–</b> días restantes</span>
+                    </div>
+                    <div class="barra" role="img" aria-label="Avance del mes">
+                        <div class="barra__fill barra__fill--acento" id="barraMes"></div>
+                    </div>
+                    <div class="presup-mes__cab presup-mes__cab--xs">
+                        <span>Día <b id="diaActual">–</b></span>
+                        <span id="diasDelMes">–</span>
+                    </div>
+                </div>
+
+                <div id="estadoPresupuesto" class="pill-estado"></div>
+
+                <button id="btnEditarPresupuesto" class="btn btn--contorno btn--ancho">Configurar presupuesto</button>
+            </article>
+        </section>
+
+        <!-- Paginación de movimientos (se genera según la cantidad) -->
+        <div id="pagDots" class="paginacion"></div>
+    </main>
+
+    <!-- Modal: nueva meta de ahorro -->
+    <div id="modalMeta" class="modal-fondo" hidden role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+        <div class="tarjeta modal-caja">
+            <h2 id="tituloModal">🎯 Nueva meta de ahorro</h2>
+            <form id="form-meta" novalidate style="margin-top: var(--espacio-3);">
+                <div class="campo">
+                    <label for="metaNombre" class="campo__etiqueta">Nombre <span aria-hidden="true">*</span></label>
+                    <input type="text" id="metaNombre" class="campo__input" placeholder="Ej. Laptop para la universidad" maxlength="100" required>
+                </div>
+                <div class="campo">
+                    <label for="metaObjetivo" class="campo__etiqueta">Monto objetivo (S/) <span aria-hidden="true">*</span></label>
+                    <input type="number" id="metaObjetivo" class="campo__input" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal" required>
+                </div>
+                <div class="campo">
+                    <label for="metaInicial" class="campo__etiqueta">Aporte inicial (opcional)</label>
+                    <input type="number" id="metaInicial" class="campo__input" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+                </div>
+                <div class="campo">
+                    <label for="metaFecha" class="campo__etiqueta">Fecha límite (opcional)</label>
+                    <input type="date" id="metaFecha" class="campo__input">
+                </div>
+                <div style="display:flex; gap: var(--espacio-2);">
+                    <button type="submit" class="btn btn--acento" style="flex:1;"><span class="btn__texto">Crear meta</span><span class="spinner" aria-hidden="true"></span></button>
+                    <button type="button" id="btnCerrarModal" class="btn btn--contorno">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: configurar presupuesto diario -->
+    <div id="modalPresupuesto" class="modal-fondo" hidden role="dialog" aria-modal="true" aria-labelledby="tituloModalPresupuesto">
+        <div class="tarjeta modal-caja">
+            <h2 id="tituloModalPresupuesto">💳 Presupuesto diario</h2>
+            <p class="texto-sm texto-suave" style="margin: var(--espacio-2) 0;">
+                Define cuánto puedes gastar por día. Si lo dejas vacío, se calcula
+                automáticamente repartiendo tu dinero disponible en los días que faltan del mes.
+            </p>
+            <form id="form-presupuesto" novalidate>
+                <div class="campo">
+                    <label for="presupMonto" class="campo__etiqueta">Límite diario (S/)</label>
+                    <input type="number" id="presupMonto" class="campo__input" placeholder="Ej. 25.00"
+                           min="0.01" step="0.01" inputmode="decimal">
+                </div>
+                <div style="display:flex; gap: var(--espacio-2); flex-wrap:wrap;">
+                    <button type="submit" class="btn btn--acento" style="flex:1;"><span class="btn__texto">Guardar</span><span class="spinner" aria-hidden="true"></span></button>
+                    <button type="button" id="btnPresupAuto" class="btn btn--contorno">Usar automático</button>
+                    <button type="button" id="btnCerrarModalPresupuesto" class="btn btn--contorno">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="../js/config.js?v=7"></script>
+    <script src="../js/main.js?v=7"></script>
+    <script src="../js/dashboard.js?v=7"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+/* ============================================================
+   EduFinanzas - Responsive Design
+   Breakpoints: 1024px (tablet), 768px (mobile), 480px (small)
+   ============================================================ */
+
+/* Tablet: sidebar colapsado, auth panel ajustes */
+@media (max-width: 1023px) {
+    .auth { grid-template-columns: 1fr; }
+    .auth__marca {
+        padding: var(--espacio-6) var(--espacio-5);
+        flex-direction: row;
+        align-items: center;
+        min-height: 200px;
+        text-align: left;
+    }
+    .auth__marca::before, .auth__marca::after { display: none; }
+    .auth__logo { margin-bottom: 0; margin-right: var(--espacio-5); }
+    .auth__contenido { justify-content: center; }
+    .auth__beneficios { flex-direction: row; flex-wrap: wrap; gap: var(--espacio-4); }
+    .auth__beneficio { flex: 1; min-width: 140px; }
+}
+
+/* Móvil: panel de marca compacto, formulario full width */
+@media (max-width: 767px) {
+    .auth__marca {
+        min-height: auto;
+        padding: var(--espacio-5) var(--espacio-4);
+        flex-direction: column;
+        text-align: center;
+    }
+    .auth__logo { margin-right: 0; margin-bottom: var(--espacio-4); }
+    .auth__beneficios { flex-direction: column; align-items: center; gap: var(--espacio-3); }
+    .auth__beneficio { width: 100%; max-width: 280px; justify-content: center; }
+    .auth__panel { padding: var(--espacio-6) var(--espacio-4); }
+    .auth__caja { max-width: 100%; }
+    .campo--fila { grid-template-columns: 1fr; }
+    .campo--fila .campo__input { border-radius: var(--radio-m); }
+    .campo--fila .btn { border-radius: var(--radio-m); min-width: 100%; }
+}
+
+/* Móvil pequeño */
+@media (max-width: 480px) {
+    :root { --texto-2xl: 1.5rem; --texto-xl: 1.25rem; --texto-lg: 1.125rem; }
+    .auth__marca { padding: var(--espacio-4); }
+    .auth__panel { padding: var(--espacio-5) var(--espacio-3); }
+    .tarjeta__cuerpo, .tarjeta__cabecera, .tarjeta__pie { padding: var(--espacio-4); }
+    .btn { padding: 12px 16px; font-size: var(--texto-md); }
+    .campo__input, .campo__select, .campo__textarea { padding: 12px; font-size: var(--texto-md); }
+    .modal { margin: var(--espacio-3); max-height: calc(100vh - 2 * var(--espacio-3)); }
+    .toast-contenedor { left: var(--espacio-3); right: var(--espacio-3); bottom: var(--espacio-3); }
+    .toast { min-width: 0; max-width: 100%; }
+}
+
+/* Ajustes generales de accesibilidad táctil */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .campo__input, .campo__select, .campo__textarea,
+    .modal__cierre, .auth__google__btn { min-height: 48px; }
+}
+
+/* Sidebar responsive (para cuando exista dashboard) */
+@media (max-width: 1023px) {
+    .sidebar { transform: translateX(-100%); width: 280px; }
+    .sidebar.abierta { transform: translateX(0); }
+    .fondo-menu { display: none; position: fixed; inset: 0; background: rgba(23,32,51,0.4); z-index: 30; }
+    .fondo-menu.visible { display: block; }
+}
+@media (min-width: 1024px) {
+    .hamburguesa { display: none !important; }
+    .fondo-menu { display: none !important; }
+}

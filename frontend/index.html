@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFinanzas</title>
+    <meta http-equiv="refresh" content="0; url=pages/registro.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        .landing { min-height: 100dvh; display: grid; place-items: center; text-align: center; padding: var(--espacio-8) var(--espacio-4); background: linear-gradient(145deg, var(--c-principal) 0%, var(--c-principal-oscuro) 100%); color: #fff; }
+        .landing .logo { display: inline-flex; align-items: center; gap: var(--espacio-3); font-size: var(--texto-2xl); font-weight: 700; margin-bottom: var(--espacio-4); }
+        .landing .logo__icono { width: 56px; height: 56px; border-radius: var(--radio-l); background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: var(--texto-xl); }
+        .landing p { opacity: 0.9; max-width: 400px; margin: 0 auto var(--espacio-6); }
+        .landing .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-right-color: #fff; border-radius: 50%; animation: girar 0.8s linear infinite; margin: 0 auto; }
+        @keyframes girar { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <main class="landing" role="main">
+        <div class="logo"><span class="logo__icono" aria-hidden="true">EF</span>EduFinanzas</div>
+        <p>Redirigiendo al registro...</p>
+        <div class="spinner" aria-hidden="true"></div>
+        <p style="margin-top: var(--espacio-4); font-size: var(--texto-sm); opacity: 0.7;">Si no redirige automáticamente, <a href="pages/registro.html" style="color:#fff; text-decoration:underline;">haz clic aquí</a>.</p>
+    </main>
+    <script>window.location.href = 'pages/registro.html';</script>
+</body>
+</html>

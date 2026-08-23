@@ -1,0 +1,24 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Variables de entorno con secretos (NUNCA subir)
+.env
+
+# Archivos locales temporales
+cookies.txt
+*.log
+.DS_Store
+Thumbs.db
+
+# Bases de datos locales
+*.sqlite
+*.db
+instance/

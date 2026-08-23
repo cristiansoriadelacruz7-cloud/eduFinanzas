@@ -1,0 +1,11 @@
+# Permitir que todos los buscadores indexen el sitio
+User-agent: *
+Allow: /
+
+# No indexar las páginas privadas (requieren sesión)
+Disallow: /pages/dashboard.html
+Disallow: /pages/movimiento.html
+Disallow: /pages/reportes.html
+
+# Ubicación del sitemap (actualiza el dominio si cambias de hosting)
+Sitemap: https://edufinanzas.onrender.com/sitemap.xml

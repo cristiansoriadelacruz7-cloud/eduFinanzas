@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - EduFinanzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=7">
+    <link rel="stylesheet" href="../css/reset.css?v=7">
+    <link rel="stylesheet" href="../css/global.css?v=7">
+    <link rel="stylesheet" href="../css/auth.css?v=7">
+    <link rel="stylesheet" href="../css/responsive.css?v=7">
+    <style>
+        /* Login hereda de auth.css; solo ajustes menores */
+        .auth__cabecera h1 { margin-bottom: var(--espacio-2); }
+    </style>
+</head>
+<body>
+    <a href="#form-login" class="saltar-contenido">Saltar al formulario</a>
+    <main class="auth" role="main">
+        <section class="auth__marca" aria-label="Identidad EduFinanzas">
+            <div class="auth__logo"><span class="auth__logo__icono" aria-hidden="true">EF</span><span class="auth__logo__texto">EduFinanzas</span></div>
+            <div class="auth__contenido">
+                <h2 class="auth__titulo">Bienvenido de nuevo</h2>
+                <p class="auth__subtitulo">Accede a tu control financiero: gastos, ingresos, metas y presupuesto diario.</p>
+                <ul class="auth__beneficios" role="list">
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">📈</span><span>Resumen financiero instantáneo</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">🎯</span><span>Tus metas de ahorro al día</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">🔔</span><span>Alertas de presupuesto</span></li>
+                </ul>
+            </div>
+            <p class="auth__pie">Hecho para estudiantes peruanos · v1.0</p>
+        </section>
+        <section class="auth__panel">
+            <div class="auth__caja tarjeta">
+                <div class="auth__logo-movil"><span class="auth__logo__icono" aria-hidden="true">EF</span><span class="auth__logo__texto">EduFinanzas</span></div>
+                <header class="auth__cabecera"><h1>Iniciar sesión</h1><p>Ingresa con tu correo o usa Google</p></header>
+                <form id="form-login" class="auth__formulario" novalidate>
+                    <div class="campo">
+                        <label for="correo" class="campo__etiqueta">Correo electrónico <span aria-hidden="true">*</span></label>
+                        <input type="email" id="correo" name="correo" class="campo__input" placeholder="juan@universidad.pe" autocomplete="email" required>
+                    </div>
+                    <div class="campo">
+                        <label for="contrasena" class="campo__etiqueta">Contraseña <span aria-hidden="true">*</span></label>
+                        <input type="password" id="contrasena" name="contrasena" class="campo__input" placeholder="••••••••" autocomplete="current-password" required>
+                    </div>
+                    <div class="campo" style="display:flex; align-items:center; justify-content:space-between;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:400;">
+                            <input type="checkbox" id="recordar" name="recordar" style="width:18px; height:18px; accent-color:var(--c-principal);"> Recordarme
+                        </label>
+                        <a href="#" class="enlace texto-sm">¿Olvidaste la contraseña?</a>
+                    </div>
+                    <button type="submit" class="btn btn--primario btn--ancho"><span class="btn__texto">Entrar</span><span class="spinner" aria-hidden="true"></span></button>
+                </form>
+                <div class="divisor" role="separator" aria-label="o">o entra con</div>
+                <div class="auth__google" id="google-button" role="region" aria-label="Iniciar con Google"></div>
+                <footer class="auth__pie-form">¿No tienes cuenta? <a href="registro.html" class="enlace">Regístrate gratis</a></footer>
+            </div>
+        </section>
+    </main>
+    <script src="../js/config.js?v=7"></script>
+    <script src="../js/main.js?v=7"></script>
+    <script>
+        (function() {
+            'use strict';
+            const form = document.getElementById('form-login');
+            const inputCorreo = document.getElementById('correo');
+            const inputContrasena = document.getElementById('contrasena');
+
+            // Google: marcador informativo (sin SDK externo)
+            EF.ui.marcadorGoogle('google-button');
+
+            // Si ya tiene sesión activa, ir directo al dashboard
+            EF.sesion.usuarioActual().then(u => {
+                if (u) window.location.href = 'dashboard.html';
+            });
+
+            // Submit → POST /api/login
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                let valido = true;
+                [inputCorreo, inputContrasena].forEach(el => {
+                    if (!el.value.trim()) { EF.ui.mostrarError(el.id, 'Campo requerido'); valido = false; }
+                    else EF.ui.limpiarError(el.id);
+                });
+                if (!valido) return;
+
+                const btn = form.querySelector('button[type="submit"]');
+                EF.ui.setCargando(btn, true);
+                try {
+                    const usuario = await EF.sesion.iniciarSesion(
+                        inputCorreo.value.trim().toLowerCase(),
+                        inputContrasena.value
+                    );
+                    EF.ui.toast('Bienvenido, ' + (usuario.nombre || usuario.correo), 'exito');
+                    setTimeout(() => window.location.href = 'dashboard.html', 700);
+                } catch (err) {
+                    EF.ui.setCargando(btn, false);
+                    if (err.codigo === 'credenciales_invalidas') {
+                        EF.ui.mostrarError('contrasena', 'Correo o contraseña incorrectos');
+                        EF.ui.toast('Credenciales inválidas', 'error');
+                    } else {
+                        EF.ui.toast(err.mensaje || 'No se pudo iniciar sesión', 'error');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

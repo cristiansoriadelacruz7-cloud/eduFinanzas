@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar movimiento - EduFinanzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=7">
+    <link rel="stylesheet" href="../css/reset.css?v=7">
+    <link rel="stylesheet" href="../css/global.css?v=7">
+    <link rel="stylesheet" href="../css/auth.css?v=7">
+    <link rel="stylesheet" href="../css/dashboard.css?v=7">
+    <link rel="stylesheet" href="../css/responsive.css?v=7">
+</head>
+<body>
+    <a href="#form-movimiento" class="saltar-contenido">Saltar al formulario</a>
+    <main class="auth" role="main">
+        <section class="auth__marca" aria-label="Identidad EduFinanzas">
+            <div class="auth__logo"><span class="auth__logo__icono" aria-hidden="true">EF</span><span class="auth__logo__texto">EduFinanzas</span></div>
+            <div class="auth__contenido">
+                <h2 class="auth__titulo">Registrar movimiento</h2>
+                <p class="auth__subtitulo">Anota tus ingresos y gastos para mantener tu presupuesto bajo control.</p>
+                <ul class="auth__beneficios" role="list">
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">⚡</span><span>Registro en segundos</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">📊</span><span>Se refleja al instante en tu panel</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">🔔</span><span>Alertas si superas tu límite diario</span></li>
+                </ul>
+            </div>
+            <p class="auth__pie">Hecho para estudiantes peruanos · v1.0</p>
+        </section>
+        <section class="auth__panel">
+            <div class="auth__caja tarjeta">
+                <div class="auth__logo-movil"><span class="auth__logo__icono" aria-hidden="true">EF</span><span class="auth__logo__texto">EduFinanzas</span></div>
+                <header class="auth__cabecera">
+                    <h1>Nuevo movimiento</h1>
+                    <p><a href="dashboard.html" class="enlace">← Volver al panel</a></p>
+                </header>
+                <form id="form-movimiento" class="auth__formulario" novalidate>
+                    <div class="tipo-toggle" role="radiogroup" aria-label="Tipo de movimiento">
+                        <button type="button" id="tipoGasto" class="activo-gasto" aria-pressed="true">💸 Gasto</button>
+                        <button type="button" id="tipoIngreso" aria-pressed="false">💰 Ingreso</button>
+                    </div>
+                    <div class="campo">
+                        <label for="monto" class="campo__etiqueta">Monto (S/) <span aria-hidden="true">*</span></label>
+                        <input type="number" id="monto" name="monto" class="campo__input" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal" required>
+                    </div>
+                    <div class="campo">
+                        <label for="categoria" class="campo__etiqueta">Categoría <span aria-hidden="true">*</span></label>
+                        <select id="categoria" name="categoria" class="campo__input" required>
+                            <option value="">Cargando categorías…</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="descripcion" class="campo__etiqueta">Descripción</label>
+                        <input type="text" id="descripcion" name="descripcion" class="campo__input" placeholder="Ej. Almuerzo en la universidad" maxlength="200">
+                    </div>
+                    <div class="campo">
+                        <label for="fecha" class="campo__etiqueta">Fecha</label>
+                        <input type="date" id="fecha" name="fecha" class="campo__input">
+                    </div>
+                    <button type="submit" class="btn btn--acento btn--ancho"><span class="btn__texto">Guardar movimiento</span><span class="spinner" aria-hidden="true"></span></button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="../js/config.js?v=7"></script>
+    <script src="../js/main.js?v=7"></script>
+    <script>
+        (function() {
+            'use strict';
+            let tipo = 'gasto';
+            const btnGasto = document.getElementById('tipoGasto');
+            const btnIngreso = document.getElementById('tipoIngreso');
+            const selectCat = document.getElementById('categoria');
+            const form = document.getElementById('form-movimiento');
+            const fechaInput = document.getElementById('fecha');
+
+            fechaInput.value = new Date().toISOString().slice(0, 10);
+
+            function pintarToggle() {
+                btnGasto.className = tipo === 'gasto' ? 'activo-gasto' : '';
+                btnIngreso.className = tipo === 'ingreso' ? 'activo-ingreso' : '';
+                btnGasto.setAttribute('aria-pressed', tipo === 'gasto');
+                btnIngreso.setAttribute('aria-pressed', tipo === 'ingreso');
+                cargarCategorias();
+            }
+
+            async function cargarCategorias() {
+                selectCat.innerHTML = '<option value="">Cargando…</option>';
+                try {
+                    const datos = await EF.api('/api/categorias');
+                    const lista = tipo === 'gasto' ? datos.gastos : datos.ingresos;
+                    selectCat.innerHTML = '<option value="">Selecciona una categoría</option>' +
+                        lista.map(c => `<option value="${c.id}">${c.icono || ''} ${c.nombre}</option>`).join('');
+                } catch (err) {
+                    if (err.codigo === 'sin_sesion' || err.estado === 401) { window.location.href = 'login.html'; return; }
+                    selectCat.innerHTML = '<option value="">(sin categoría)</option>';
+                }
+            }
+
+            btnGasto.addEventListener('click', () => { tipo = 'gasto'; pintarToggle(); });
+            btnIngreso.addEventListener('click', () => { tipo = 'ingreso'; pintarToggle(); });
+
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                EF.ui.limpiarError('monto');
+                const monto = parseFloat(document.getElementById('monto').value);
+                if (!monto || monto <= 0) { EF.ui.mostrarError('monto', 'Ingresa un monto mayor a 0'); return; }
+
+                const btn = form.querySelector('button[type="submit"]');
+                EF.ui.setCargando(btn, true);
+                try {
+                    await EF.api(tipo === 'gasto' ? '/api/gastos' : '/api/ingresos', {
+                        metodo: 'POST',
+                        datos: {
+                            monto,
+                            categoria_id: selectCat.value || null,
+                            descripcion: document.getElementById('descripcion').value.trim(),
+                            fecha: fechaInput.value || undefined
+                        }
+                    });
+                    EF.ui.toast((tipo === 'gasto' ? '💸 Gasto' : '💰 Ingreso') + ' registrado', 'exito');
+                    setTimeout(() => window.location.href = 'dashboard.html', 700);
+                } catch (err) {
+                    EF.ui.setCargando(btn, false);
+                    if (err.codigo === 'sin_sesion' || err.estado === 401) { window.location.href = 'login.html'; return; }
+                    EF.ui.toast(err.mensaje || 'No se pudo guardar el movimiento', 'error');
+                }
+            });
+
+            pintarToggle();
+        })();
+    </script>
+</body>
+</html>

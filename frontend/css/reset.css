@@ -1,0 +1,16 @@
+/* ============================================================
+   EduFinanzas - Reset CSS
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; -moz-tab-size: 4; tab-size: 4; }
+body { line-height: 1.5; -webkit-font-smoothing: antialiased; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; }
+p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+a { color: inherit; text-decoration: none; }
+button { background: none; border: none; cursor: pointer; }
+ul, ol { list-style: none; }
+table { border-collapse: collapse; border-spacing: 0; }
+:focus-visible { outline: 2px solid var(--c-secundario); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

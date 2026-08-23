@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear cuenta - EduFinanzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=7">
+    <link rel="stylesheet" href="../css/reset.css?v=7">
+    <link rel="stylesheet" href="../css/global.css?v=7">
+    <link rel="stylesheet" href="../css/auth.css?v=7">
+    <link rel="stylesheet" href="../css/responsive.css?v=7">
+</head>
+<body>
+    <a href="#form-registro" class="saltar-contenido">Saltar al formulario</a>
+
+    <main class="auth" role="main">
+        <!-- Panel de marca (izquierda) -->
+        <section class="auth__marca" aria-label="Identidad EduFinanzas">
+            <div class="auth__logo">
+                <span class="auth__logo__icono" aria-hidden="true">EF</span>
+                <span class="auth__logo__texto">EduFinanzas</span>
+            </div>
+            <div class="auth__contenido">
+                <h2 class="auth__titulo">Tu dinero, bajo control</h2>
+                <p class="auth__subtitulo">La app financiera pensada para estudiantes. Registra ingresos, controla gastos y alcanza tus metas de ahorro.</p>
+                <ul class="auth__beneficios" role="list">
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">💰</span><span>Ve tu dinero disponible al instante</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">📊</span><span>Gastos por categoría con gráficos</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">🎯</span><span>Metas de ahorro con progreso visual</span></li>
+                    <li class="auth__beneficio"><span class="auth__beneficio__icono" aria-hidden="true">📅</span><span>Presupuesto diario automático</span></li>
+                </ul>
+            </div>
+            <p class="auth__pie">Hecho para estudiantes peruanos · v1.0</p>
+        </section>
+
+        <!-- Panel de formulario (derecha) -->
+        <section class="auth__panel">
+            <div class="auth__caja tarjeta">
+                <!-- Logo móvil -->
+                <div class="auth__logo-movil">
+                    <span class="auth__logo__icono" aria-hidden="true">EF</span>
+                    <span class="auth__logo__texto">EduFinanzas</span>
+                </div>
+
+                <header class="auth__cabecera">
+                    <h1>Crear cuenta</h1>
+                    <p>Regístrate con tu DNI o usa tu cuenta de Google</p>
+                </header>
+
+                <form id="form-registro" class="auth__formulario" novalidate>
+                    <!-- DNI con auto-completado -->
+                    <div class="campo campo--fila">
+                        <label for="dni" class="campo__etiqueta">DNI <span aria-hidden="true">*</span></label>
+                        <input type="text" id="dni" name="dni" class="campo__input" maxlength="8" inputmode="numeric" pattern="\d{8}" placeholder="12345678" autocomplete="off" aria-describedby="ayuda-dni" required>
+                        <button type="button" id="btn-buscar-dni" class="btn btn--secundario" aria-label="Buscar datos con DNI">Buscar</button>
+                        <span id="ayuda-dni" class="campo__ayuda">8 dígitos. Consultamos RENIEC para autocompletar tus nombres.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nombres" class="campo__etiqueta">Nombres <span aria-hidden="true">*</span></label>
+                        <input type="text" id="nombres" name="nombres" class="campo__input" placeholder="Juan Carlos" autocomplete="given-name" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="apellidos" class="campo__etiqueta">Apellidos <span aria-hidden="true">*</span></label>
+                        <input type="text" id="apellidos" name="apellidos" class="campo__input" placeholder="Pérez González" autocomplete="family-name" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="correo" class="campo__etiqueta">Correo electrónico <span aria-hidden="true">*</span></label>
+                        <input type="email" id="correo" name="correo" class="campo__input" placeholder="juan@universidad.pe" autocomplete="email" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="contrasena" class="campo__etiqueta">Contraseña <span aria-hidden="true">*</span></label>
+                        <input type="password" id="contrasena" name="contrasena" class="campo__input" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+                        <div id="fortaleza-contrasena" class="fortaleza" aria-label="Fortaleza de contraseña"><div class="fortaleza__barra"></div></div>
+                        <span class="campo__ayuda">Mínimo 6 caracteres. Mezcla mayúsculas, números y símbolos para más seguridad.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label for="confirmar-contrasena" class="campo__etiqueta">Confirmar contraseña <span aria-hidden="true">*</span></label>
+                        <input type="password" id="confirmar-contrasena" name="confirmar_contrasena" class="campo__input" placeholder="••••••••" autocomplete="new-password" required>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__etiqueta" style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="terminos" name="terminos" required style="margin-top:2px; width:18px; height:18px; accent-color:var(--c-principal);">
+                            <span>Acepto los <a href="#" class="enlace">Términos y condiciones</a> y la <a href="#" class="enlace">Política de privacidad</a></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn--primario btn--ancho"><span class="btn__texto">Crear cuenta</span><span class="spinner" aria-hidden="true"></span></button>
+                </form>
+
+                <div class="divisor" role="separator" aria-label="o">o continúa con</div>
+
+                <div class="auth__google" id="google-button" role="region" aria-label="Iniciar con Google">
+                    <!-- Botón renderizado por JS -->
+                </div>
+
+                <footer class="auth__pie-form">
+                    ¿Ya tienes cuenta? <a href="login.html" class="enlace">Inicia sesión</a>
+                </footer>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts: config → main → página -->
+    <script src="../js/config.js?v=7"></script>
+    <script src="../js/main.js?v=7"></script>
+    <script src="../js/registro.js?v=7"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - EduFinanzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=7">
+    <link rel="stylesheet" href="../css/reset.css?v=7">
+    <link rel="stylesheet" href="../css/global.css?v=7">
+    <link rel="stylesheet" href="../css/dashboard.css?v=7">
+    <link rel="stylesheet" href="../css/responsive.css?v=7">
+</head>
+<body>
+    <a href="#contenido" class="saltar-contenido">Saltar al contenido</a>
+
+    <main class="dashboard" id="contenido">
+        <!-- Barra superior -->
+        <header class="topbar" aria-label="Reportes financieros">
+            <div class="topbar__saludo">
+                <h1>📊 Reportes</h1>
+                <p class="subtitulo">Tu historial financiero completo</p>
+            </div>
+            <nav class="topbar__acciones">
+                <a href="dashboard.html" class="btn btn--contorno">← Volver al panel</a>
+            </nav>
+        </header>
+
+        <!-- Resumen histórico -->
+        <section class="resumen-grid" aria-label="Resumen histórico">
+            <article class="stat-card">
+                <p class="stat-card__etiqueta">Ingresos totales</p>
+                <div class="stat-card__fila">
+                    <span class="icono-chip icono-chip--exito" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+                    </span>
+                    <p class="stat-card__monto" id="repIngresos">S/ 0.00</p>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <p class="stat-card__etiqueta">Gastos totales</p>
+                <div class="stat-card__fila">
+                    <span class="icono-chip icono-chip--error" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+                    </span>
+                    <p class="stat-card__monto" id="repGastos">S/ 0.00</p>
+                </div>
+            </article>
+
+            <article class="stat-card stat-card--balance">
+                <p class="stat-card__etiqueta">Ahorro neto</p>
+                <p class="stat-card__monto stat-card__monto--xl" id="repAhorro">S/ 0.00</p>
+                <p class="stat-card__pie texto-sm texto-suave" id="notaAhorro">Calculando…</p>
+            </article>
+        </section>
+
+        <!-- Paneles -->
+        <section class="panel-grid">
+            <article class="tarjeta panel" aria-label="Evolución mensual">
+                <h2 class="panel__titulo">Ingresos vs gastos · últimos 6 meses</h2>
+                <div class="grafico-contenedor">
+                    <canvas id="graficoMensual" height="240"></canvas>
+                </div>
+            </article>
+
+            <article class="tarjeta panel" aria-label="Gastos por categoría">
+                <h2 class="panel__titulo">Gastos por categoría</h2>
+                <div class="grafico-contenedor grafico-contenedor--donut">
+                    <canvas id="graficoCategorias" height="200"></canvas>
+                </div>
+                <ul id="listaCategorias" class="leyenda" role="list"></ul>
+            </article>
+        </section>
+
+        <!-- Paginación decorativa -->
+        <div class="paginacion" aria-hidden="true">
+            <span class="dot"></span><span class="dot dot--activo"></span><span class="dot"></span>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="../js/config.js?v=7"></script>
+    <script src="../js/main.js?v=7"></script>
+    <script src="../js/reportes.js?v=7"></script>
+</body>
+</html>

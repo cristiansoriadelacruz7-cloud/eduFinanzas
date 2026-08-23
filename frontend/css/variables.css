@@ -1,0 +1,68 @@
+/* ============================================================
+   EduFinanzas - Sistema de diseño · Tema oscuro "Deep Teal"
+   Paleta: #0c232a (superficie), #07b2af (acento), #ffffff,
+           #e4edf4 (detalles claros)
+   ============================================================ */
+:root {
+    color-scheme: dark;
+
+    /* Acento turquesa */
+    --c-principal: #07b2af;
+    --c-principal-oscuro: #058a88;
+    --c-principal-claro: rgba(7, 178, 175, 0.14);
+    --c-secundario: #0fd1cd;
+
+    /* Fondos y superficies */
+    --c-fondo: #081b21;
+    --c-fondo-gradiente: linear-gradient(160deg, #0e3039 0%, #0a252d 48%, #06181e 100%);
+    --c-tarjeta: #0c232a;
+    --c-tarjeta-elevada: #11323c;
+
+    /* Texto */
+    --c-texto: #ffffff;
+    --c-texto-suave: #93abb3;
+    --c-detalle-claro: #e4edf4;
+
+    /* Estados */
+    --c-exito: #07b2af;
+    --c-advertencia: #fbbf24;
+    --c-error: #f87171;
+    --c-borde: rgba(228, 237, 244, 0.10);
+
+    /* Tipografía */
+    --fuente-base: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --texto-xs: 0.75rem;
+    --texto-sm: 0.875rem;
+    --texto-md: 1rem;
+    --texto-lg: 1.125rem;
+    --texto-xl: 1.375rem;
+    --texto-2xl: 1.75rem;
+    --texto-monto: 2rem;
+
+    /* Espaciado */
+    --espacio-1: 4px;
+    --espacio-2: 8px;
+    --espacio-3: 12px;
+    --espacio-4: 16px;
+    --espacio-5: 24px;
+    --espacio-6: 32px;
+    --espacio-8: 48px;
+
+    /* Radios */
+    --radio-s: 10px;
+    --radio-m: 14px;
+    --radio-l: 20px;
+    --radio-circulo: 999px;
+
+    /* Sombras */
+    --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.30);
+    --sombra-2: 0 6px 20px rgba(0, 0, 0, 0.35);
+    --sombra-3: 0 16px 48px rgba(0, 0, 0, 0.45);
+
+    /* Z-index */
+    --z-navbar: 50;
+    --z-sidebar: 40;
+    --z-modal-fondo: 100;
+    --z-modal: 110;
+    --z-toast: 200;
+}
