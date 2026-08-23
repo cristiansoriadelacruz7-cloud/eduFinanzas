@@ -1,17 +1,41 @@
 import os
+from urllib.parse import quote_plus
+
 from dotenv import load_dotenv
 
 # Cargar variables de entorno (opcional, si usas .env)
 load_dotenv()
 
-# Base de datos:
-# - En local usa tu MySQL de siempre (127.0.0.1:3307)
-# - En la nube define la variable DATABASE_URL, por ejemplo:
-#   mysql+pymysql://usuario:contraseña@host:puerto/nombre_bd?charset=utf8mb4
-SQLALCHEMY_DATABASE_URI = os.getenv(
-    "DATABASE_URL",
-    "mysql+pymysql://root:@127.0.0.1:3307/edufinanzas?charset=utf8mb4",
-)
+
+def _uri_de_base_datos() -> str:
+    """Construye la URI de conexión a la base de datos.
+
+    Orden de prioridad:
+    1. DATABASE_URL completa (si ya viene lista para usar).
+    2. Variables separadas DB_HOST/DB_USER/DB_PASSWORD/DB_NAME/DB_PORT:
+       la contraseña se codifica automáticamente, así caracteres como @
+       o espacios no rompen el formato de la URL.
+    3. MySQL local por defecto (XAMPP en el puerto 3307).
+    """
+    url = os.getenv("DATABASE_URL", "").strip()
+    if url:
+        return url
+
+    host = os.getenv("DB_HOST", "").strip()
+    user = os.getenv("DB_USER", "").strip()
+    nombre = os.getenv("DB_NAME", "").strip()
+    if host and user and nombre:
+        password = os.getenv("DB_PASSWORD", "")
+        puerto = os.getenv("DB_PORT", "3306").strip() or "3306"
+        return (
+            f"mysql+pymysql://{user}:{quote_plus(password)}@{host}:{puerto}/{nombre}"
+            "?charset=utf8mb4"
+        )
+
+    return "mysql+pymysql://root:@127.0.0.1:3307/edufinanzas?charset=utf8mb4"
+
+
+SQLALCHEMY_DATABASE_URI = _uri_de_base_datos()
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
