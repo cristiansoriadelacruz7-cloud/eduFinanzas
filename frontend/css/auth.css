@@ -64,6 +64,21 @@
 
 /* Fila DNI: input + botón */
 .campo--fila { display: grid; grid-template-columns: 1fr auto; gap: var(--espacio-2); align-items: end; }
+/* ---------- Ver / ocultar contraseña (ojito) ---------- */
+.campo__contrasena { position: relative; }
+.campo__contrasena .campo__input { padding-right: 46px; }
+.ver-contrasena {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: none; border-radius: 8px;
+    color: var(--c-texto-suave); cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+}
+.ver-contrasena:hover { color: var(--c-principal); background: var(--c-principal-claro); }
+.ver-contrasena:focus-visible { outline: 2px solid var(--c-principal); }
+.ver-contrasena svg { width: 20px; height: 20px; }
+
 .campo--fila .campo__input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .campo--fila .btn { border-top-left-radius: 0; border-bottom-left-radius: 0; min-width: 110px; white-space: nowrap; }
 

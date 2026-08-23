@@ -7,11 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/variables.css?v=7">
-    <link rel="stylesheet" href="../css/reset.css?v=7">
-    <link rel="stylesheet" href="../css/global.css?v=7">
-    <link rel="stylesheet" href="../css/auth.css?v=7">
-    <link rel="stylesheet" href="../css/responsive.css?v=7">
+    <link rel="stylesheet" href="../css/variables.css?v=8">
+    <link rel="stylesheet" href="../css/reset.css?v=8">
+    <link rel="stylesheet" href="../css/global.css?v=8">
+    <link rel="stylesheet" href="../css/auth.css?v=8">
+    <link rel="stylesheet" href="../css/responsive.css?v=8">
     <style>
         /* Login hereda de auth.css; solo ajustes menores */
         .auth__cabecera h1 { margin-bottom: var(--espacio-2); }
@@ -44,7 +44,12 @@
                     </div>
                     <div class="campo">
                         <label for="contrasena" class="campo__etiqueta">Contraseña <span aria-hidden="true">*</span></label>
-                        <input type="password" id="contrasena" name="contrasena" class="campo__input" placeholder="••••••••" autocomplete="current-password" required>
+                        <div class="campo__contrasena">
+                            <input type="password" id="contrasena" name="contrasena" class="campo__input" placeholder="••••••••" autocomplete="current-password" required>
+                            <button type="button" id="verContrasena" class="ver-contrasena" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="campo" style="display:flex; align-items:center; justify-content:space-between;">
                         <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:400;">
@@ -60,14 +65,29 @@
             </div>
         </section>
     </main>
-    <script src="../js/config.js?v=7"></script>
-    <script src="../js/main.js?v=7"></script>
+    <script src="../js/config.js?v=8"></script>
+    <script src="../js/main.js?v=8"></script>
     <script>
         (function() {
             'use strict';
             const form = document.getElementById('form-login');
             const inputCorreo = document.getElementById('correo');
             const inputContrasena = document.getElementById('contrasena');
+
+            // Mostrar / ocultar contraseña (ojito)
+            const btnVer = document.getElementById('verContrasena');
+            if (btnVer) {
+                const OJO_ABIERTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+                const OJO_CERRADO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 11s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>';
+                btnVer.addEventListener('click', () => {
+                    const ver = inputContrasena.type === 'password';
+                    inputContrasena.type = ver ? 'text' : 'password';
+                    btnVer.innerHTML = ver ? OJO_CERRADO : OJO_ABIERTO;
+                    btnVer.setAttribute('aria-pressed', String(ver));
+                    btnVer.setAttribute('aria-label', ver ? 'Ocultar contraseña' : 'Mostrar contraseña');
+                    inputContrasena.focus();
+                });
+            }
 
             // Google: marcador informativo (sin SDK externo)
             EF.ui.marcadorGoogle('google-button');
