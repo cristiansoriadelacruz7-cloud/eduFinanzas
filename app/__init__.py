@@ -10,7 +10,8 @@ import sys
 # agregando la raíz del proyecto al path para que encuentre config.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify, send_from_directory
+from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
 
@@ -71,6 +72,23 @@ def create_app():
             except Exception as exc:  # noqa: BLE001
                 print(f"[AVISO] BD aún no disponible: {exc}")
 
+
+    # ---------- Diagnóstico: errores visibles en respuesta y logs ----------
+    @app.errorhandler(Exception)
+    def _error_interno(exc):
+        import traceback
+        traceback.print_exc()  # queda en los Runtime Logs de Vercel
+        if isinstance(exc, HTTPException):
+            return jsonify({'ok': False, 'error': exc.description}), exc.code
+        detalle = f"{type(exc).__name__}: {exc}"[:300]
+        return jsonify({'ok': False, 'error': 'ERROR_INTERNO_SERVIDOR', 'detalle': detalle}), 500
+
+    # ---------- Favicon (evita el 404 en consola) ----------
+    @app.route('/favicon.ico')
+    def favicon():
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+               '<text y="19" font-size="19">💰</text></svg>')
+        return app.response_class(svg, mimetype='image/svg+xml')
 
     # ---------- Servir el frontend estático (mismo origen que /api) ----------
     @app.route('/')

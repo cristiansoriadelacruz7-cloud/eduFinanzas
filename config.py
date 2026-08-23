@@ -18,8 +18,15 @@ def _uri_de_base_datos() -> str:
     3. MySQL local por defecto (XAMPP en el puerto 3307).
     """
     url = os.getenv("DATABASE_URL", "").strip()
+    # Limpiar comillas o espacios que se peguen por accidente en Vercel
+    url = url.strip("\"'` ").strip()
     if url:
-        return url
+        try:
+            from sqlalchemy.engine import make_url
+            make_url(url)
+            return url
+        except Exception as exc:  # noqa: BLE001
+            print(f"[AVISO] DATABASE_URL invalida ({exc}); se ignora y se usan DB_*")
 
     host = os.getenv("DB_HOST", "").strip()
     user = os.getenv("DB_USER", "").strip()
