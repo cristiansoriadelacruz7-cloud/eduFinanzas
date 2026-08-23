@@ -10,7 +10,7 @@ import sys
 # agregando la raíz del proyecto al path para que encuentre config.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
@@ -89,6 +89,44 @@ def create_app():
         svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
                '<text y="19" font-size="19">💰</text></svg>')
         return app.response_class(svg, mimetype='image/svg+xml')
+
+    # ---------- Diagnóstico de base de datos (temporal para depurar) ----------
+    @app.route('/api/diagnostico')
+    def diagnostico():
+        if request.args.get('clave') != 'edu2026':
+            return jsonify({'ok': False, 'error': 'clave_requerida'}), 403
+
+        import sqlalchemy
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.engine import make_url
+        from config import SQLALCHEMY_DATABASE_URI as uri
+
+        u = make_url(uri)
+        info = {
+            'python': sys.version.split()[0],
+            'sqlalchemy': sqlalchemy.__version__,
+            'driver': u.drivername,
+            'host': u.host,
+            'puerto': u.port,
+            'base_datos': u.database,
+            'password_recibida': bool(u.password),
+            'variables_entorno': {
+                'DATABASE_URL_definida': bool(os.getenv('DATABASE_URL')),
+                'DB_HOST': os.getenv('DB_HOST'),
+                'DB_USER': os.getenv('DB_USER'),
+                'DB_NAME': os.getenv('DB_NAME'),
+                'DB_PASSWORD_definida': bool(os.getenv('DB_PASSWORD')),
+                'FLASK_DEBUG': os.getenv('FLASK_DEBUG'),
+            },
+        }
+        try:
+            motor = create_engine(uri, connect_args={'connect_timeout': 5})
+            with motor.connect() as con:
+                con.execute(text('SELECT 1'))
+            info['conexion'] = 'OK - la app SÍ llega a la base de datos'
+        except Exception as exc:  # noqa: BLE001
+            info['conexion'] = f"FALLO -> {type(exc).__name__}: {exc}"
+        return jsonify({'ok': True, **info})
 
     # ---------- Servir el frontend estático (mismo origen que /api) ----------
     @app.route('/')
