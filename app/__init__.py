@@ -29,6 +29,11 @@ def create_app():
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # Fallar rápido si la BD no responde (crítico en serverless)
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {"connect_timeout": 4},
+        "pool_pre_ping": True,
+    }
     if DEBUG:
         app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -49,6 +54,23 @@ def create_app():
     app.register_blueprint(gasto_bp)
     app.register_blueprint(ahorro_bp)
     app.register_blueprint(reporte_bp)
+
+    # ---------- Creación de tablas diferida ----------
+    # En serverless NO se debe tocar la BD durante el arranque de la función:
+    # se hace una sola vez, en la primera petición real, y sin bloquear si falla.
+    _tablas_listas = {"ok": False}
+
+    @app.before_request
+    def _asegurar_tablas():
+        if _tablas_listas["ok"]:
+            return
+        with app.app_context():
+            try:
+                db.create_all()
+                _tablas_listas["ok"] = True
+            except Exception as exc:  # noqa: BLE001
+                print(f"[AVISO] BD aún no disponible: {exc}")
+
 
     # ---------- Servir el frontend estático (mismo origen que /api) ----------
     @app.route('/')
@@ -85,21 +107,18 @@ def create_app():
     return app
 
 
+# Instancia WSGI global (la consumen wsgi.py, api/index.py y gunicorn).
+# Ya NO toca la base de datos durante el import: eso se hace en la
+# primera petición vía _asegurar_tablas().
 app = create_app()
-
-with app.app_context():
-    # Importar modelos para que SQLAlchemy los registre
-    from app.models.db import Usuario, Categoria, Ingreso, Gasto, MetaAhorro  # noqa: F401
-
-    try:
-        db.create_all()
-        print("[OK] Base de datos conectada correctamente")
-        print(f"[DB] URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
-    except Exception as exc:  # noqa: BLE001
-        # En producción la app debe poder arrancar aunque la BD aún no responda
-        print(f"[AVISO] No se pudo conectar/crear tablas todavía: {exc}")
 
 
 if __name__ == "__main__":
     puerto = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, port=puerto)
+    app_local = create_app()
+    with app_local.app_context():
+        from app.models.db import Usuario, Categoria, Ingreso, Gasto, MetaAhorro  # noqa: F401
+        db.create_all()
+        print("[OK] Base de datos conectada correctamente")
+        print(f"[DB] URI: {app_local.config['SQLALCHEMY_DATABASE_URI']}")
+    app_local.run(debug=True, port=puerto)
