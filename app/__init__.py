@@ -75,7 +75,8 @@ def create_app():
     # ---------- Servir el frontend estático (mismo origen que /api) ----------
     @app.route('/')
     def raiz():
-        return send_from_directory(FRONTEND_DIR, 'index.html')
+        # La página de entrada es el login
+        return send_from_directory(os.path.join(FRONTEND_DIR, 'pages'), 'login.html')
 
     @app.route('/pages/<path:ruta>')
     def servir_paginas(ruta):
