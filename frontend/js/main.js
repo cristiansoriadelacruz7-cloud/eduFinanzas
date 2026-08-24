@@ -26,11 +26,11 @@
 
         if (!respuesta.ok || (datos && datos.ok === false)) {
             const codigo = (datos && datos.error) || 'http_' + respuesta.status;
-            throw {
-                codigo,
-                estado: respuesta.status,
-                mensaje: (datos && datos.error) || ('Error HTTP ' + respuesta.status)
-            };
+        throw {
+            codigo: 'http_error',
+            estado: respuesta.status,
+            mensaje: (datos && (datos.detalle || datos.error)) || ('Error HTTP ' + respuesta.status)
+        };
         }
         return datos;
     }
@@ -166,6 +166,80 @@
             </button>`;
     }
 
+    /* ---------- Diálogos propios (reemplazan alert/confirm/prompt) ---------- */
+    function _crearDialogo({ titulo, mensaje, campo, textoAceptar = 'Aceptar', peligroso = false }) {
+        return new Promise(resolver => {
+            const fondo = document.createElement('div');
+            fondo.className = 'modal-fondo abierto dialogo';
+            fondo.innerHTML = `
+                <div class="modal dialogo__caja" role="dialog" aria-modal="true" aria-labelledby="dlgTitulo">
+                    <h3 id="dlgTitulo" class="dialogo__titulo">${titulo}</h3>
+                    ${mensaje ? `<p class="dialogo__mensaje">${mensaje}</p>` : ''}
+                    ${campo ? `
+                        <label class="campo__etiqueta" for="dlgCampo">${campo.etiqueta}</label>
+                        <input id="dlgCampo" class="campo__input" type="${campo.tipo || 'text'}"
+                               placeholder="${campo.placeholder || ''}" min="${campo.min ?? ''}"
+                               step="${campo.step ?? ''}" autocomplete="off">
+                        <p class="campo__error" role="alert" hidden></p>` : ''}
+                    <div class="dialogo__acciones">
+                        <button type="button" class="btn btn--contorno" data-dlg="cancelar">Cancelar</button>
+                        <button type="button" class="btn ${peligroso ? 'btn--peligroso' : 'btn--primario'}"
+                                data-dlg="aceptar">${textoAceptar}</button>
+                    </div>
+                </div>`;
+
+            const cerrar = valor => {
+                fondo.classList.remove('abierto');
+                setTimeout(() => fondo.remove(), 200);
+                document.removeEventListener('keydown', alTeclado);
+                resolver(valor);
+            };
+            const aceptar = () => {
+                if (campo) {
+                    const entrada = fondo.querySelector('#dlgCampo');
+                    const errorEl = fondo.querySelector('.campo__error');
+                    const valor = entrada.value.trim();
+                    const numero = parseFloat(valor);
+                    if (!valor || (campo.tipo === 'number' && (!numero || numero <= 0))) {
+                        errorEl.hidden = false;
+                        errorEl.textContent = '⚠ Ingresa un valor mayor a 0';
+                        entrada.focus();
+                        return;
+                    }
+                    cerrar(campo.tipo === 'number' ? numero : valor);
+                } else {
+                    cerrar(true);
+                }
+            };
+            const alTeclado = e => {
+                if (e.key === 'Escape') cerrar(false);
+                if (e.key === 'Enter') { e.preventDefault(); aceptar(); }
+            };
+
+            fondo.addEventListener('click', e => {
+                if (e.target === fondo) cerrar(false);
+                const accion = e.target.closest('button[data-dlg]')?.dataset.dlg;
+                if (accion === 'aceptar') aceptar();
+                if (accion === 'cancelar') cerrar(false);
+            });
+            document.addEventListener('keydown', alTeclado);
+            document.body.appendChild(fondo);
+            (campo ? fondo.querySelector('#dlgCampo') : fondo.querySelector('[data-dlg="aceptar"]')).focus();
+        });
+    }
+
+    function confirmar(titulo, mensaje, textoAceptar = 'Eliminar') {
+        return _crearDialogo({ titulo, mensaje, textoAceptar, peligroso: true });
+    }
+
+    function pedirNumero(titulo, etiqueta, opciones = {}) {
+        return _crearDialogo({
+            titulo,
+            campo: { tipo: 'number', min: 0.01, step: 0.01, placeholder: '0.00', ...opciones },
+            textoAceptar: 'Guardar',
+        }).then(v => (typeof v === 'number' ? v : null));
+    }
+
     /* ---------- API pública ---------- */
     window.EF = {
         api,
@@ -173,6 +247,9 @@
         validacion: { esCorreoValido, validarContrasena },
         dni: { consultar: consultarDni },
         formato: { moneda },
-        ui: { toast, mostrarError, limpiarError, setCargando, redireccionar, marcadorGoogle }
+        ui: {
+            toast, mostrarError, limpiarError, setCargando, redireccionar,
+            marcadorGoogle, confirmar, pedirNumero
+        }
     };
 })();

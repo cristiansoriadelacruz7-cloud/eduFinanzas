@@ -196,17 +196,16 @@
         if (!boton) return;
         const id = boton.closest('.meta').dataset.id;
         if (boton.dataset.accion === 'aportar') {
-            const entrada = window.prompt('¿Cuánto deseas aportar? (S/)');
-            if (entrada === null) return;
-            const monto = parseFloat(entrada);
-            if (!monto || monto <= 0) { EF.ui.toast('Monto inválido', 'advertencia'); return; }
+            const monto = await EF.ui.pedirNumero('Aportar a la meta', '¿Cuánto deseas aportar? (S/)');
+            if (monto === null) return;
             try {
                 await EF.api(`/api/metas/${id}/aportar`, { metodo: 'PUT', datos: { monto } });
                 EF.ui.toast('Aporte registrado 🎯', 'exito');
                 inicializar();
             } catch (err) { EF.ui.toast(err.mensaje || 'No se pudo aportar', 'error'); }
         } else {
-            if (!window.confirm('¿Eliminar esta meta?')) return;
+            const ok = await EF.ui.confirmar('Eliminar meta', 'Esta acción no se puede deshacer.');
+            if (!ok) return;
             try {
                 await EF.api(`/api/metas/${id}`, { metodo: 'DELETE' });
                 EF.ui.toast('Meta eliminada', 'info');
@@ -309,7 +308,8 @@
         const fila = boton.closest('.mov');
         const id = fila.dataset.id;
         const tipo = fila.dataset.tipo;
-        if (!window.confirm('¿Eliminar este movimiento? Esta acción no se puede deshacer.')) return;
+        const ok = await EF.ui.confirmar('Eliminar movimiento', 'Esta acción no se puede deshacer.');
+        if (!ok) return;
 
         boton.disabled = true;
         try {
@@ -507,11 +507,12 @@
             pintarMovimientos(d.movimientos);
             pintarPresupuesto(d);
         } catch (err) {
+            console.error('[dashboard] fallo al cargar:', err);
             if (err.codigo === 'sin_sesion' || err.estado === 401) {
                 window.location.href = 'login.html';
                 return;
             }
-            EF.ui.toast(err.mensaje || 'No se pudo cargar el dashboard', 'error');
+            EF.ui.toast(err.detalle || err.mensaje || 'No se pudo cargar el dashboard', 'error');
         }
     }
 

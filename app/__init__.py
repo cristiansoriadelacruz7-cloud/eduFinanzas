@@ -30,10 +30,13 @@ def create_app():
     app.config["SECRET_KEY"] = SECRET_KEY
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    # Fallar rápido si la BD no responde (crítico en serverless)
+    # Fallar rápido y reciclar conexiones (crítico en serverless con MySQL compartido)
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {"connect_timeout": 4},
         "pool_pre_ping": True,
+        "pool_size": 2,
+        "max_overflow": 0,
+        "pool_recycle": 240,
     }
     if DEBUG:
         app.config["TEMPLATES_AUTO_RELOAD"] = True
