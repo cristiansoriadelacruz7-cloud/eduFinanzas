@@ -10,7 +10,7 @@ import sys
 # agregando la raíz del proyecto al path para que encuentre config.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, redirect, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
@@ -131,8 +131,9 @@ def create_app():
     # ---------- Servir el frontend estático (mismo origen que /api) ----------
     @app.route('/')
     def raiz():
-        # La página de entrada es el login
-        return send_from_directory(os.path.join(FRONTEND_DIR, 'pages'), 'login.html')
+        # Redirigir a la ruta real del login: así los enlaces relativos
+        # (dashboard.html, registro.html...) resuelven siempre bien
+        return redirect('/pages/login.html')
 
     @app.route('/pages/<path:ruta>')
     def servir_paginas(ruta):
