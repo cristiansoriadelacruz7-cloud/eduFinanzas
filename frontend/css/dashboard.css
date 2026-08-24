@@ -85,6 +85,69 @@
     color: #04252a;
 }
 
+/* ---------- Selector de tipo (Gasto / Ingreso) ---------- */
+.tipo-toggle {
+    display: flex;
+    gap: 6px;
+    padding: 5px;
+    margin-bottom: var(--espacio-4);
+    background: rgba(228, 237, 244, 0.05);
+    border: 1px solid var(--c-borde);
+    border-radius: var(--radio-m);
+}
+.tipo-toggle button {
+    flex: 1;
+    min-height: 42px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radio-m) - 3px);
+    background: transparent;
+    color: var(--c-texto-suave);
+    font-weight: 500;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tipo-toggle button:hover { color: var(--c-texto); border-color: rgba(228, 237, 244, 0.30); }
+.tipo-toggle button:focus-visible { outline: 2px solid var(--c-principal); outline-offset: 2px; }
+
+/* Gasto seleccionado: rojo oscuro */
+.tipo-toggle button.activo-gasto {
+    background: rgba(220, 38, 38, 0.18);
+    border-color: rgba(248, 113, 113, 0.70);
+    color: #fecaca;
+    box-shadow: 0 2px 12px rgba(220, 38, 38, 0.15);
+}
+
+/* Ingreso seleccionado: turquesa */
+.tipo-toggle button.activo-ingreso {
+    background: rgba(7, 178, 175, 0.18);
+    border-color: var(--c-principal);
+    color: #99f6e4;
+    box-shadow: 0 2px 12px rgba(7, 178, 175, 0.15);
+}
+
+/* El formulario entero reacciona al tipo elegido */
+#form-movimiento[data-tipo="gasto"] .btn--acento {
+    background: #b91c1c;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+#form-movimiento[data-tipo="gasto"] .btn--acento:hover:not(:disabled) {
+    background: #dc2626;
+    border-color: #ef4444;
+}
+#form-movimiento[data-tipo="ingreso"] .btn--acento {
+    background: var(--c-principal);
+    border-color: var(--c-principal);
+    color: #04252a;
+}
+#form-movimiento[data-tipo="ingreso"] .btn--acento:hover:not(:disabled) {
+    background: var(--c-secundario);
+    border-color: var(--c-secundario);
+}
+
 /* ---------- Tarjetas de resumen ---------- */
 .resumen-grid {
     display: grid;
