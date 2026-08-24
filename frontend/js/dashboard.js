@@ -69,6 +69,21 @@
     }
 
     /* ---------- Sparklines ---------- */
+    // Registro de instancias Chart.js por canvas: hay que destruirlas antes
+    // de volver a dibujar sobre el mismo <canvas> (evita "Canvas is already in use")
+    const graficosActivos = {};
+
+    function crearChart(canvasId, config) {
+        if (typeof Chart === 'undefined') return;
+        const canvas = $(canvasId);
+        if (!canvas) return;
+        if (graficosActivos[canvasId]) {
+            graficosActivos[canvasId].destroy();
+            delete graficosActivos[canvasId];
+        }
+        graficosActivos[canvasId] = new Chart(canvas, config);
+    }
+
     function renderSpark(canvasId, valores, color) {
         const canvas = $(canvasId);
         if (!canvas || typeof Chart === 'undefined' || valores.length < 2) return;
@@ -77,7 +92,7 @@
         gradiente.addColorStop(0, color + '55');
         gradiente.addColorStop(1, color + '00');
 
-        new Chart(canvas, {
+        crearChart(canvasId, {
             type: 'line',
             data: {
                 labels: valores.map((_, i) => i),
@@ -107,7 +122,7 @@
         Chart.defaults.font.family = "'Poppins', system-ui, sans-serif";
         Chart.defaults.color = COLOR_SUAVE;
 
-        new Chart($('graficoGastos'), {
+        crearChart('graficoGastos', {
             type: 'doughnut',
             data: {
                 labels: categorias.map(c => c.nombre),

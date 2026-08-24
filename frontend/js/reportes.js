@@ -55,13 +55,27 @@
         }
     }
 
+    /* ---------- Registro de gráficas: destruir antes de reutilizar canvas ---------- */
+    const graficosActivos = {};
+
+    function crearChart(canvasId, config) {
+        if (typeof Chart === 'undefined') return;
+        const canvas = $(canvasId);
+        if (!canvas) return;
+        if (graficosActivos[canvasId]) {
+            graficosActivos[canvasId].destroy();
+            delete graficosActivos[canvasId];
+        }
+        graficosActivos[canvasId] = new Chart(canvas, config);
+    }
+
     /* ---------- Barras mensuales ---------- */
     function pintarBarrasMensuales(porMes) {
         if (typeof Chart === 'undefined' || !$('graficoMensual')) return;
         Chart.defaults.font.family = "'Poppins', system-ui, sans-serif";
         Chart.defaults.color = COLOR_SUAVE;
 
-        new Chart($('graficoMensual'), {
+        crearChart('graficoMensual', {
             type: 'bar',
             data: {
                 labels: porMes.map(m => m.mes),
@@ -104,7 +118,7 @@
         }
 
         if (typeof Chart !== 'undefined') {
-            new Chart($('graficoCategorias'), {
+            crearChart('graficoCategorias', {
                 type: 'doughnut',
                 data: {
                     labels: categorias.map(c => c.nombre),
