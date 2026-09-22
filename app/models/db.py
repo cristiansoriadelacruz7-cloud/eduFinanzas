@@ -13,7 +13,11 @@ class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     correo = db.Column(db.String(150), unique=True, nullable=False)
-    contrasena_hash = db.Column(db.String(255), nullable=False)
+    # Nullable: las cuentas creadas con Google no tienen contraseña local
+    contrasena_hash = db.Column(db.String(255), nullable=True)
+    # Login con Google (Identity Services)
+    google_id = db.Column(db.String(255), unique=True, nullable=True)
+    avatar_url = db.Column(db.String(500), nullable=True)
     fecha_registro = db.Column(db.DateTime, default=db.func.current_timestamp())
     activo = db.Column(db.Boolean, default=True)
 
@@ -26,6 +30,8 @@ class Usuario(db.Model):
 
     def check_password(self, password):
         from werkzeug.security import check_password_hash
+        if not self.contrasena_hash:
+            return False
         return check_password_hash(self.contrasena_hash, password)
 
     def a_dict(self):
@@ -33,6 +39,8 @@ class Usuario(db.Model):
             'id': self.id,
             'nombre': self.nombre,
             'correo': self.correo,
+            'avatar_url': self.avatar_url,
+            'con_google': bool(self.google_id),
             'fecha_registro': str(self.fecha_registro),
         }
 

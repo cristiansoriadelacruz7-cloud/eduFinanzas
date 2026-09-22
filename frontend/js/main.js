@@ -27,7 +27,7 @@
         if (!respuesta.ok || (datos && datos.ok === false)) {
             const codigo = (datos && datos.error) || 'http_' + respuesta.status;
         throw {
-            codigo: 'http_error',
+            codigo,
             estado: respuesta.status,
             mensaje: (datos && (datos.detalle || datos.error)) || ('Error HTTP ' + respuesta.status)
         };
@@ -155,15 +155,85 @@
 
     function redireccionar(url) { window.location.href = url; }
 
-    /* Placeholder visual para "Continuar con Google" */
-    function marcadorGoogle(contenedorId) {
+    async function iniciarSesionConGoogle(credential) {
+        const r = await api('/api/auth/google', { metodo: 'POST', datos: { credential } });
+        return r.usuario;
+    }
+
+    async function obtenerGoogleClientId() {
+        if (window.EF_CONFIG && window.EF_CONFIG.googleClientId) {
+            return window.EF_CONFIG.googleClientId;
+        }
+        try {
+            const r = await fetch('/api/auth/google/config', { credentials: 'same-origin' });
+            const datos = await r.json();
+            if (datos && datos.clientId) {
+                window.EF_CONFIG = window.EF_CONFIG || {};
+                window.EF_CONFIG.googleClientId = datos.clientId;
+                return datos.clientId;
+            }
+        } catch { /* sin backend o sin config */ }
+        return '';
+    }
+
+    function _mostrarGoogleNoConfigurado(contenedor) {
+        contenedor.innerHTML = `
+            <button type="button" class="btn btn--secundario auth__google__btn" disabled
+                    title="Configura GOOGLE_CLIENT_ID en el backend para activarlo">
+                Continuar con Google (sin configurar)
+            </button>
+            <p class="campo__ayuda" style="margin-top:8px">El administrador aún no configuró el login con Google.</p>`;
+    }
+
+    /* Botón real "Continuar con Google" (Google Identity Services) */
+    async function botonGoogle(contenedorId, opciones = {}) {
         const c = document.getElementById(contenedorId);
         if (!c) return;
-        c.innerHTML = `
-            <button type="button" class="btn btn--secundario auth__google__btn" disabled
-                    title="Disponible próximamente">
-                Continuar con Google (próximamente)
-            </button>`;
+        const clientId = await obtenerGoogleClientId();
+        if (!clientId) { _mostrarGoogleNoConfigurado(c); return; }
+
+        // Esperar a que cargue el SDK de Google (accounts.google.com/gsi/client)
+        let intentos = 0;
+        while (!(window.google && window.google.accounts && window.google.accounts.id) && intentos < 50) {
+            await new Promise(r => setTimeout(r, 100));
+            intentos++;
+        }
+        if (!(window.google && window.google.accounts && window.google.accounts.id)) {
+            _mostrarGoogleNoConfigurado(c);
+            return;
+        }
+
+        c.innerHTML = '';
+        window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (resp) => {
+                try {
+                    const usuario = await iniciarSesionConGoogle(resp.credential);
+                    toast('Bienvenido, ' + (usuario.nombre || usuario.correo), 'exito');
+                    setTimeout(() => {
+                        const destino = (window.EF_CONFIG && window.EF_CONFIG.redireccionDespuesAuth) || 'dashboard.html';
+                        window.location.href = destino;
+                    }, 700);
+                } catch (err) {
+                    toast((err && err.mensaje) || 'No se pudo entrar con Google', 'error');
+                }
+            },
+            ...((opciones && opciones.gsi) || {})
+        });
+        window.google.accounts.id.renderButton(c, {
+            theme: 'outline',
+            size: 'large',
+            width: 320,
+            text: 'continue_with',
+            shape: 'pill',
+            ...((opciones && opciones.boton) || {})
+        });
+    }
+
+    /* Compatibilidad: antes era un placeholder deshabilitado,
+       ahora renderiza el botón real de Google. */
+    function marcadorGoogle(contenedorId, opciones) {
+        return botonGoogle(contenedorId, opciones);
     }
 
     /* ---------- Diálogos propios (reemplazan alert/confirm/prompt) ---------- */
@@ -243,13 +313,13 @@
     /* ---------- API pública ---------- */
     window.EF = {
         api,
-        sesion: { iniciarSesion, registrar, cerrarSesion, usuarioActual },
+        sesion: { iniciarSesion, registrar, cerrarSesion, usuarioActual, iniciarSesionConGoogle, obtenerGoogleClientId },
         validacion: { esCorreoValido, validarContrasena },
         dni: { consultar: consultarDni },
         formato: { moneda },
         ui: {
             toast, mostrarError, limpiarError, setCargando, redireccionar,
-            marcadorGoogle, confirmar, pedirNumero
+            marcadorGoogle, botonGoogle, confirmar, pedirNumero
         }
     };
 })();

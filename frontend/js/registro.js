@@ -81,8 +81,8 @@
     });
     inputDni.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btnDni.click(); } });
 
-    /* ---------- Google: marcador informativo ---------- */
-    EF.ui.marcadorGoogle('google-button');
+    /* ---------- Google: botón real (Identity Services) ---------- */
+    EF.ui.botonGoogle('google-button');
 
     /* ---------- Envío del formulario → POST /api/registro ---------- */
     form.addEventListener('submit', async e => {

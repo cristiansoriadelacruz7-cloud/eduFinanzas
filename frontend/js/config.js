@@ -1,15 +1,11 @@
 /* ============================================================
-   EduFinanzas - Configuración (modo ficticio)
+   EduFinanzas - Configuración
    ============================================================ */
 
 window.EF_CONFIG = {
-    // Modo: 'ficticio' - todos los datos son simulados localmente
-    // Sin APIs externas: DNI, Google, etc.
-    // Perfecto para demo/local sin necesidad de tokens ni servidores
-    modo: 'ficticio',
-
-    // Estos valores son irrelevantes en modo ficticio
-    dniApiToken: "",
+    // El CLIENT ID de Google se obtiene automáticamente del backend
+    // (GET /api/auth/google/config). Solo rellénalo aquí si quieres
+    // forzar uno distinto en local:
     googleClientId: "",
 
     // Redirección tras login/registro exitoso

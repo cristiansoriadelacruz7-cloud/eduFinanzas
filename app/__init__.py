@@ -71,6 +71,32 @@ def create_app():
         with app.app_context():
             try:
                 db.create_all()
+                # Migración ligera: tablas ya existentes no ganan columnas
+                # nuevas con create_all, así que se agregan si faltan
+                # (necesario para el Login con Google en BD ya creadas).
+                try:
+                    from sqlalchemy import text as _text
+                    with db.engine.connect() as _con:
+                        for _sql in (
+                            "ALTER TABLE usuarios ADD COLUMN google_id VARCHAR(255) NULL",
+                            "ALTER TABLE usuarios ADD COLUMN avatar_url VARCHAR(500) NULL",
+                            "ALTER TABLE usuarios MODIFY COLUMN contrasena_hash VARCHAR(255) NULL",
+                        ):
+                            try:
+                                _con.execute(_text(_sql))
+                                _con.commit()
+                            except Exception:
+                                _con.rollback()  # la columna ya existe: seguir
+                        try:
+                            _con.execute(_text(
+                                "CREATE UNIQUE INDEX uq_usuarios_google "
+                                "ON usuarios (google_id)"
+                            ))
+                            _con.commit()
+                        except Exception:
+                            _con.rollback()  # índice ya existe o MySQL lo omite: seguir
+                except Exception as _e:  # noqa: BLE001
+                    print(f"[AVISO] Migración Google omitida: {_e}")
                 _tablas_listas["ok"] = True
             except Exception as exc:  # noqa: BLE001
                 print(f"[AVISO] BD aún no disponible: {exc}")

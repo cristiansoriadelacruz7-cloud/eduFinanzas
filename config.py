@@ -59,5 +59,10 @@ DEBUG = os.getenv("FLASK_DEBUG", "True").lower() == "true"
 # Rutas de las plantillas y archivos estáticos
 TEMPLATES_AUTO_RELOAD = DEBUG
 
+# Configuración de Google (Login con Google / Identity Services)
+# Se obtiene en https://console.cloud.google.com/apis/credentials
+# Tipo: "ID de cliente de OAuth 2.0" -> Aplicación web
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip().strip("\"'` ")
+
 # Configuración de CORS si es necesario
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5000").split(",")
