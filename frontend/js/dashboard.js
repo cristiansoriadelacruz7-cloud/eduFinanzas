@@ -459,6 +459,144 @@
         window.location.href = 'login.html';
     }
 
+    /* ---------- Plan / Suscripción / Licencias / Notificaciones ---------- */
+    function abrirModalPlan() {
+        const modal = $('modalPlan');
+        if (!modal) return;
+        modal.hidden = false;
+        requestAnimationFrame(() => modal.classList.add('abierto'));
+    }
+    function cerrarModalPlan() {
+        const modal = $('modalPlan');
+        if (!modal) return;
+        modal.classList.remove('abierto');
+        setTimeout(() => { modal.hidden = true; }, 220);
+    }
+    function abrirModalNotificaciones() {
+        const modal = $('modalNotificaciones');
+        if (!modal) return;
+        modal.hidden = false;
+        requestAnimationFrame(() => modal.classList.add('abierto'));
+        cargarNotificaciones();
+    }
+    function cerrarModalNotif() {
+        const modal = $('modalNotificaciones');
+        if (!modal) return;
+        modal.classList.remove('abierto');
+        setTimeout(() => { modal.hidden = true; }, 220);
+    }
+
+    async function actualizarBadgePlan() {
+        try {
+            const r = await EF.api('/api/plan').catch(() => null);
+            if (!r || !r.usuario) return;
+            const u = r.usuario;
+            const badgePlan = $('badgePlan');
+            const badgeAcceso = $('badgeAcceso');
+            const badgeProHasta = $('badgeProHasta');
+            if (badgePlan) badgePlan.textContent = 'Plan: ' + (u.plan === 'pro' ? 'Pro' : 'Gratuito');
+            if (badgeAcceso) badgeAcceso.textContent = u.plan === 'pro' ? ('Acceso: ' + (u.tipo_acceso || '')) : '';
+            if (badgeProHasta) badgeProHasta.textContent = u.pro_hasta ? ('Vence: ' + u.pro_hasta) : '';
+            const btnMejorar = $('btnMejorarPlan');
+            if (btnMejorar) {
+                if (u.plan === 'pro') {
+                    btnMejorar.textContent = '✅ Plan Pro activo';
+                    btnMejorar.classList.remove('btn--acento');
+                    btnMejorar.classList.add('btn--contorno');
+                } else {
+                    btnMejorar.textContent = '⭐ Mejorar a Pro';
+                    btnMejorar.classList.remove('btn--contorno');
+                    btnMejorar.classList.add('btn--acento');
+                }
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    async function activarSuscripcion() {
+        try {
+            const r = await EF.api('/api/plan/activar-pro', { metodo: 'POST', datos: { dias: 30 } });
+            EF.ui.toast(r.mensaje || 'Plan Pro activado', 'exito');
+            cerrarModalPlan();
+            actualizarBadgePlan();
+            inicializar();
+        } catch (err) {
+            EF.ui.toast(err.mensaje || 'No se pudo activar la suscripción', 'error');
+        }
+    }
+
+    async function canjearLicencia(e) {
+        e.preventDefault();
+        const input = $('inputCodigoLicencia');
+        const codigo = (input.value || '').trim().toUpperCase();
+        if (!codigo) { EF.ui.toast('Ingresa un código de licencia', 'advertencia'); return; }
+        try {
+            const r = await EF.api('/api/plan/activar-licencia', { metodo: 'POST', datos: { codigo } });
+            EF.ui.toast(r.mensaje || 'Licencia activada', 'exito');
+            input.value = '';
+            cerrarModalPlan();
+            actualizarBadgePlan();
+            inicializar();
+        } catch (err) {
+            EF.ui.toast(err.mensaje || 'No se pudo canjear la licencia', 'error');
+        }
+    }
+
+    async function generarLicenciaDemo() {
+        try {
+            const r = await EF.api('/api/plan/generar-licencia', { metodo: 'POST', datos: { dias: 30, cantidad: 1 } });
+            if (r.licencias && r.licencias[0]) {
+                EF.ui.toast('Licencia generada: ' + r.licencias[0], 'exito');
+            } else {
+                EF.ui.toast(r.mensaje || 'Licencia generada', 'exito');
+            }
+        } catch (err) {
+            EF.ui.toast(err.mensaje || 'No se pudo generar licencia', 'error');
+        }
+    }
+
+    async function cargarNotificaciones() {
+        const lista = $('listaNotificaciones');
+        const estado = $('notifEstado');
+        if (!lista) return;
+        lista.innerHTML = '';
+        if (estado) estado.textContent = 'Cargando...';
+        try {
+            const r = await EF.api('/api/notificaciones');
+            if (estado) estado.textContent = r.es_pro ? 'Alertas de notificación disponibles para Plan Pro' : 'Solo algunas notificaciones. Actualiza a Pro para ver alertas exclusivas.';
+            if (!r.notificaciones || !r.notificaciones.length) {
+                lista.innerHTML = '<li class="estado-vacio"><p>No hay notificaciones.</p></li>';
+                return;
+            }
+            r.notificaciones.forEach(n => {
+                const li = document.createElement('li');
+                li.className = 'tarjeta';
+                li.style.padding = 'var(--espacio-3)';
+                li.innerHTML = `<div style="display:flex; justify-content:space-between; gap:var(--espacio-2);">
+                    <div>
+                        <strong>${n.titulo}</strong>
+                        <p class="texto-sm texto-suave" style="margin:4px 0 0;">${n.mensaje}</p>
+                        <p class="texto-xs texto-suave" style="margin:6px 0 0;">${n.creada_en}</p>
+                    </div>
+                    <span class="chip chip--neutro">${n.tipo}</span>
+                </div>`;
+                lista.appendChild(li);
+            });
+        } catch (err) {
+            if (estado) estado.textContent = err.mensaje || 'No se pudieron cargar notificaciones';
+            lista.innerHTML = '<li class="estado-vacio"><p>Error al cargar notificaciones.</p></li>';
+        }
+    }
+
+    async function crearNotifDemo() {
+        try {
+            const r = await EF.api('/api/notificaciones/crear-demo', { metodo: 'POST' });
+            EF.ui.toast(r.mensaje || 'Alertas demo creadas', 'exito');
+            cargarNotificaciones();
+        } catch (err) {
+            EF.ui.toast(err.mensaje || 'No se pudieron crear alertas demo', 'error');
+        }
+    }
+
     /* ---------- Inicialización ---------- */
     // Registra eventos de forma independiente: si falta un elemento
     // (p. ej. mezcla de caché vieja), los demás botones siguen funcionando.
@@ -493,6 +631,20 @@
             if (!monto || monto <= 0) { EF.ui.toast('El monto debe ser mayor a 0', 'advertencia'); return; }
             guardarPresupuesto(monto);
         });
+
+        on('btnMejorarPlan', 'click', abrirModalPlan);
+        on('btnCerrarModalPlan', 'click', cerrarModalPlan);
+        on('modalPlan', 'click', e => { if (e.target === e.currentTarget) cerrarModalPlan(); });
+        on('btnActivarSuscripcion', 'click', activarSuscripcion);
+        on('formLicencia', 'submit', canjearLicencia);
+        on('btnGenerarLicenciaDemo', 'click', generarLicenciaDemo);
+
+        on('btnNotificaciones', 'click', abrirModalNotificaciones);
+        on('btnCerrarModalNotif', 'click', cerrarModalNotif);
+        on('modalNotificaciones', 'click', e => { if (e.target === e.currentTarget) cerrarModalNotif(); });
+        on('btnCrearNotifDemo', 'click', crearNotifDemo);
+
+        actualizarBadgePlan();
 
         try {
             const [d, rep] = await Promise.all([

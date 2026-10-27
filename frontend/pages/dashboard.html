@@ -29,9 +29,11 @@
         <header class="topbar" aria-label="Panel principal">
             <div class="topbar__saludo">
                 <h1 id="saludo">Buenos días 👋</h1>
-                <p class="subtitulo">Aquí tienes un resumen de tus finanzas</p>
+                <p class="subtitulo">Aquí tienes un resumen de tus finanzas · <span id="badgePlan" class="chip chip--neutro">Plan: ...</span> <span id="badgeAcceso" class="chip chip--neutro"></span> <span id="badgeProHasta" class="chip chip--neutro"></span></p>
             </div>
             <nav class="topbar__acciones" aria-label="Acciones principales">
+                <button id="btnNotificaciones" class="btn btn--contorno" title="Notificaciones">🔔 Notificaciones</button>
+                <button id="btnMejorarPlan" class="btn btn--acento">⭐ Mejorar a Pro</button>
                 <a href="reportes.html" class="btn btn--contorno">Reportes</a>
                 <a href="movimiento.html" class="btn btn--acento">＋ Registrar movimiento</a>
                 <button id="btnLogout" class="btn btn--contorno" title="Cerrar sesión">Salir</button>
@@ -180,6 +182,75 @@
                     <button type="button" id="btnCerrarModalPresupuesto" class="btn btn--contorno">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Mejorar a Pro / Suscripción / Licencia -->
+    <div id="modalPlan" class="modal-fondo" hidden role="dialog" aria-modal="true" aria-labelledby="tituloModalPlan">
+        <div class="tarjeta modal-caja" style="max-width: 520px;">
+            <h2 id="tituloModalPlan">⭐ Planes EduFinanzas</h2>
+            <p class="texto-sm texto-suave" style="margin: var(--espacio-2) 0;">
+                Elige cómo activar el <b>Plan Pro</b>.
+            </p>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--espacio-2); margin-top: var(--espacio-3);">
+                <article class="tarjeta" style="padding: var(--espacio-3);">
+                    <h3 style="margin:0;">🆓 Gratuito</h3>
+                    <p class="texto-sm texto-suave">Funciones básicas. Sin alertas Pro.</p>
+                    <ul class="texto-sm" style="margin: var(--espacio-2) 0 var(--espacio-3) 18px;">
+                        <li>Dashboard, ingresos/gastos</li>
+                        <li>Metas básicas</li>
+                        <li>Presupuesto diario</li>
+                    </ul>
+                    <button type="button" class="btn btn--contorno btn--ancho" disabled>Actual: Gratuito</button>
+                </article>
+
+                <article class="tarjeta" style="padding: var(--espacio-3); border: 1px solid var(--color-acento);">
+                    <h3 style="margin:0;">🚀 Pro</h3>
+                    <p class="texto-sm texto-suave">Alertas de notificación, ventajas Pro y más control.</p>
+                    <ul class="texto-sm" style="margin: var(--espacio-2) 0 var(--espacio-3) 18px;">
+                        <li>🔔 Alertas y notificaciones Pro</li>
+                        <li>Soporte prioritario</li>
+                        <li>Funciones avanzadas</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--espacio-2); margin-top: var(--espacio-3);">
+                <div class="tarjeta" style="padding: var(--espacio-3);">
+                    <h4 style="margin:0;">💳 Por suscripción (simulado)</h4>
+                    <p class="texto-sm texto-suave">Activa Pro por 30 días al "pagar".</p>
+                    <button type="button" id="btnActivarSuscripcion" class="btn btn--acento btn--ancho" style="margin-top: var(--espacio-2);">Activar Pro por suscripción (30 días)</button>
+                </div>
+                <div class="tarjeta" style="padding: var(--espacio-3);">
+                    <h4 style="margin:0;">🔑 Por licencia</h4>
+                    <p class="texto-sm texto-suave">Ingresa tu código de licencia.</p>
+                    <form id="formLicencia" style="margin-top: var(--espacio-2); display:flex; gap: var(--espacio-2);">
+                        <input type="text" id="inputCodigoLicencia" class="campo__input" placeholder="XXXX-XXXX-XXXX-XXXX" style="flex:1; text-transform: uppercase;">
+                        <button type="submit" class="btn btn--acento">Canjear</button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="display:flex; gap: var(--espacio-2); margin-top: var(--espacio-4);">
+                <button type="button" id="btnGenerarLicenciaDemo" class="btn btn--contorno">Generar licencia demo (para pruebas)</button>
+                <button type="button" id="btnCerrarModalPlan" class="btn btn--contorno">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Notificaciones -->
+    <div id="modalNotificaciones" class="modal-fondo" hidden role="dialog" aria-modal="true" aria-labelledby="tituloModalNotif">
+        <div class="tarjeta modal-caja" style="max-width: 560px;">
+            <h2 id="tituloModalNotif">🔔 Notificaciones</h2>
+            <p id="notifEstado" class="texto-sm texto-suave" style="margin: var(--espacio-2) 0;">Cargando...</p>
+            <div style="margin: var(--espacio-3) 0;">
+                <button type="button" id="btnCrearNotifDemo" class="btn btn--contorno">Crear alertas demo (solo Pro)</button>
+            </div>
+            <ul id="listaNotificaciones" role="list" style="display:flex; flex-direction:column; gap: var(--espacio-2); max-height: 420px; overflow:auto;"></ul>
+            <div style="display:flex; gap: var(--espacio-2); margin-top: var(--espacio-4);">
+                <button type="button" id="btnCerrarModalNotif" class="btn btn--contorno">Cerrar</button>
+            </div>
         </div>
     </div>
 

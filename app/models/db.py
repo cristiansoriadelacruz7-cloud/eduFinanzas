@@ -4,6 +4,8 @@ Mapean a las tablas existentes en MySQL: usuarios, categorias,
 ingresos, gastos, metas_ahorro.
 """
 
+from datetime import datetime, timedelta
+
 from app.extensions import db
 
 
@@ -17,6 +19,14 @@ class Usuario(db.Model):
     fecha_registro = db.Column(db.DateTime, default=db.func.current_timestamp())
     activo = db.Column(db.Boolean, default=True)
 
+    # Sistema de planes / suscripciones / licencias
+    plan = db.Column(db.Enum('gratuito', 'pro'), default='gratuito', nullable=False)
+    tipo_acceso = db.Column(db.Enum('gratis', 'suscripcion', 'licencia'), default='gratis', nullable=False)
+    pro_hasta = db.Column(db.Date, nullable=True)
+    licencia_id = db.Column(db.Integer, db.ForeignKey('licencias.id'), nullable=True)
+
+    licencia = db.relationship('Licencia', backref='usuario_asignado', lazy=True, uselist=False)
+
     def __repr__(self):
         return f'<Usuario {self.correo}>'
 
@@ -28,12 +38,32 @@ class Usuario(db.Model):
         from werkzeug.security import check_password_hash
         return check_password_hash(self.contrasena_hash, password)
 
+    def es_pro(self):
+        from datetime import date
+        if self.plan != 'pro':
+            return False
+        if self.pro_hasta and self.pro_hasta < date.today():
+            self.plan = 'gratuito'
+            self.tipo_acceso = 'gratis'
+            self.pro_hasta = None
+            return False
+        return True
+
     def a_dict(self):
+        es_pro_activo = False
+        try:
+            es_pro_activo = self.es_pro()
+        except Exception:
+            es_pro_activo = self.plan == 'pro'
         return {
             'id': self.id,
             'nombre': self.nombre,
             'correo': self.correo,
             'fecha_registro': str(self.fecha_registro),
+            'plan': 'pro' if es_pro_activo else 'gratuito',
+            'tipo_acceso': self.tipo_acceso,
+            'pro_hasta': str(self.pro_hasta) if self.pro_hasta else None,
+            'es_pro': es_pro_activo,
         }
 
 
@@ -185,3 +215,84 @@ class Preferencia(db.Model):
 
     def __repr__(self):
         return f'<Preferencia usuario={self.usuario_id} diario={self.presupuesto_diario}>'
+
+
+class Licencia(db.Model):
+    __tablename__ = 'licencias'
+
+    id = db.Column(db.Integer, primary_key=True)
+    codigo = db.Column(db.String(32), unique=True, nullable=False)
+    tipo = db.Column(db.Enum('pro'), default='pro', nullable=False)
+    duracion_dias = db.Column(db.Integer, default=30, nullable=False)
+    usada = db.Column(db.Boolean, default=False, nullable=False)
+    usada_por_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
+    usada_en = db.Column(db.DateTime, nullable=True)
+    creada_en = db.Column(db.DateTime, default=db.func.current_timestamp())
+    expira_creacion = db.Column(db.DateTime, nullable=True)
+
+    usada_por = db.relationship('Usuario', foreign_keys=[usada_por_id], lazy=True)
+
+    def a_dict(self):
+        return {
+            'id': self.id,
+            'codigo': self.codigo,
+            'tipo': self.tipo,
+            'duracion_dias': self.duracion_dias,
+            'usada': self.usada,
+            'usada_por_id': self.usada_por_id,
+            'usada_en': str(self.usada_en) if self.usada_en else None,
+            'creada_en': str(self.creada_en) if self.creada_en else None,
+        }
+
+
+class Suscripcion(db.Model):
+    __tablename__ = 'suscripciones'
+
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    plan = db.Column(db.Enum('pro'), default='pro', nullable=False)
+    estado = db.Column(db.Enum('pendiente', 'activa', 'cancelada', 'vencida'), default='activa', nullable=False)
+    metodo_pago = db.Column(db.String(50), default='simulado', nullable=False)
+    iniciado_en = db.Column(db.DateTime, default=db.func.current_timestamp())
+    vence_en = db.Column(db.DateTime, nullable=True)
+    transaccion_id = db.Column(db.String(64), nullable=True)
+
+    usuario = db.relationship('Usuario', backref='suscripciones', lazy=True)
+
+    def a_dict(self):
+        return {
+            'id': self.id,
+            'usuario_id': self.usuario_id,
+            'plan': self.plan,
+            'estado': self.estado,
+            'metodo_pago': self.metodo_pago,
+            'iniciado_en': str(self.iniciado_en) if self.iniciado_en else None,
+            'vence_en': str(self.vence_en) if self.vence_en else None,
+            'transaccion_id': self.transaccion_id,
+        }
+
+
+class Notificacion(db.Model):
+    __tablename__ = 'notificaciones'
+
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    titulo = db.Column(db.String(150), nullable=False)
+    mensaje = db.Column(db.Text, nullable=False)
+    tipo = db.Column(db.Enum('info', 'alerta', 'exito', 'promocion'), default='alerta', nullable=False)
+    leida = db.Column(db.Boolean, default=False, nullable=False)
+    solo_pro = db.Column(db.Boolean, default=True, nullable=False)
+    creada_en = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    usuario = db.relationship('Usuario', backref='notificaciones', lazy=True)
+
+    def a_dict(self):
+        return {
+            'id': self.id,
+            'titulo': self.titulo,
+            'mensaje': self.mensaje,
+            'tipo': self.tipo,
+            'leida': self.leida,
+            'solo_pro': self.solo_pro,
+            'creada_en': str(self.creada_en) if self.creada_en else None,
+        }

@@ -83,9 +83,13 @@ def resumen():
     # Metas activas
     metas = [m.a_dict() for m in usuario.metas_ahorro if m.estado == 'activa']
 
+    if hasattr(usuario, 'es_pro'):
+        usuario.es_pro()
+        db.session.commit()
+
     return jsonify({
         'ok': True,
-        'usuario': {'nombre': usuario.nombre},
+        'usuario': usuario.a_dict(),
         'disponible': usuario_disponible(usuario),
         'total_ingresos_mes': total_ingresos,
         'total_gastos_mes': total_gastos,

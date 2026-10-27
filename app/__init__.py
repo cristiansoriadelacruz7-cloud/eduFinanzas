@@ -51,6 +51,7 @@ def create_app():
     from app.routes.gasto_routes import gasto_bp
     from app.routes.ahorro_routes import ahorro_bp
     from app.routes.reporte_routes import reporte_bp
+    from app.routes.plan_routes import plan_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -58,6 +59,7 @@ def create_app():
     app.register_blueprint(gasto_bp)
     app.register_blueprint(ahorro_bp)
     app.register_blueprint(reporte_bp)
+    app.register_blueprint(plan_bp)
 
     # ---------- Creación de tablas diferida ----------
     # En serverless NO se debe tocar la BD durante el arranque de la función:
